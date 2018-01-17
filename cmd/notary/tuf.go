@@ -759,7 +759,7 @@ type passwordStore struct {
 func (ps passwordStore) Basic(u *url.URL) (string, string) {
 	// if it's not a terminal, don't wait on input
 	if ps.anonymous || !terminal.IsTerminal(int(os.Stdin.Fd())) {
-		return "", ""
+		return os.Getenv("DOCKER_AUTH_USERNAME"), os.Getenv("DOCKER_AUTH_PASSWORD")
 	}
 
 	stdin := bufio.NewReader(os.Stdin)
