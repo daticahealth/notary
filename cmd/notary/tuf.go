@@ -757,9 +757,15 @@ type passwordStore struct {
 }
 
 func (ps passwordStore) Basic(u *url.URL) (string, string) {
+	username := os.Getenv("NOTARY_AUTH_USERNAME")
+	password := os.Getenv("NOTARY_AUTH_PASSWORD")
+	if username != "" && password != "" {
+		return username, password
+	}
+
 	// if it's not a terminal, don't wait on input
 	if ps.anonymous || !terminal.IsTerminal(int(os.Stdin.Fd())) {
-		return os.Getenv("DOCKER_AUTH_USERNAME"), os.Getenv("DOCKER_AUTH_PASSWORD")
+		return "", ""
 	}
 
 	stdin := bufio.NewReader(os.Stdin)
@@ -771,7 +777,7 @@ func (ps passwordStore) Basic(u *url.URL) (string, string) {
 		return "", ""
 	}
 
-	username := strings.TrimSpace(string(userIn))
+	username = strings.TrimSpace(string(userIn))
 
 	// If typing on the terminal, we do not want the terminal to echo the
 	// password that is typed (so it doesn't display)
@@ -793,7 +799,7 @@ func (ps passwordStore) Basic(u *url.URL) (string, string) {
 		logrus.Errorf("error processing password input: %s", err)
 		return "", ""
 	}
-	password := strings.TrimSpace(string(userIn))
+	password = strings.TrimSpace(string(userIn))
 
 	return username, password
 }
