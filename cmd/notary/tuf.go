@@ -781,11 +781,6 @@ func getUsername(input chan string) {
 }
 
 func (ps passwordStore) Basic(u *url.URL) (string, string) {
-	// if it's not a terminal, don't wait on input
-	if ps.anonymous {
-		return "", ""
-	}
-
 	auth := os.Getenv("NOTARY_AUTH")
 	if auth != "" {
 		dec, err := base64.StdEncoding.DecodeString(auth)
@@ -807,6 +802,11 @@ func (ps passwordStore) Basic(u *url.URL) (string, string) {
 		}
 
 		logrus.Error("Malformatted authentication string; format must be <username>:<password>")
+		return "", ""
+	}
+
+	// if it's not a terminal, don't wait on input
+	if ps.anonymous {
 		return "", ""
 	}
 
